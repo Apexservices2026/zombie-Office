@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>html,body{margin:0;padding:0;height:100%;background:#22252c}</style>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=6f7df996c5').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=a3ba10e4ff').catch(()=>{}));</script>
 </head><body>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -323,7 +323,7 @@ button { touch-action: manipulation; }
 .pick button { font: 700 12.5px/1.2 var(--mono); padding: 8px 6px; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line-2); background: rgba(255,255,255,.04); color: var(--tx); cursor: pointer; }
 .pick button.on { border-color: var(--coin); background: var(--coin); color: var(--ink); }
 .pick .opts.three { grid-template-columns: repeat(3, 1fr); }
-.pick .opts.av { grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.pick .opts.av { grid-template-columns: repeat(5, 1fr); gap: 4px; }
 .pick .opts.av button { padding: 2px 0; display: grid; place-items: center; min-height: 48px; }
 .pick .opts.av button.on { background: rgba(242,181,28,.18); }
 .pick .opts.av canvas { width: 40px; height: 40px; display: block; }
@@ -1033,6 +1033,9 @@ const AVATARS = {
   scientist: { name: 'Scientist', shirt: '#ffffff', trim: '#59c3e8', hair: '#c9c9c9', goggles: true },
   gamer:     { name: 'Gamer', shirt: '#d8443a', trim: '#1d2129', hood: true },
   astronaut: { name: 'Astronaut', shirt: '#e9edf2', trim: '#ff8a1c', helmet: true },
+  manager:   { name: 'Office manager', shirt: '#6a2d55', trim: '#f4efe6', hair: '#9a5426', longHair: true, earrings: '#f2c14e' },
+  builder:   { name: 'Builder', shirt: '#2f4a6a', vest: '#d8f238', trim: '#c9d1dc', hair: '#8a4b22', hardhat: '#ffffff', ponytail: true },
+  medic:     { name: 'Paramedic', shirt: '#22566b', trim: '#e8ff5a', hair: '#17110d', braids: '#c94a3a' },
 };
 const TONES = ['#f1c9a5', '#d9a273', '#a86b45', '#6b4128'];
 let AV = AVATARS[store.get('avatar')] ? store.get('avatar') : 'worker';
@@ -2989,6 +2992,49 @@ function drawAvatar(g, r, key, tone, gun) { // top-down person facing +x; gun() 
   else if (key === 'scientist') { g.beginPath(); g.ellipse(r * 0.05, 0, r * 0.28, r * 0.34, 0, 0, 7); g.fill(); g.fillStyle = '#d8443a'; g.fillRect(-r * 0.2, -r * 0.62, r * 0.1, r * 0.22); } // shirt under coat + pen
   else if (key === 'gamer') { g.beginPath(); g.arc(-r * 0.25, 0, r * 0.58, 0, 7); g.fillStyle = '#a8322a'; g.fill(); } // hood
   else if (key === 'astronaut') { g.fillRect(-r * 0.15, -r * 0.75, r * 0.12, r * 1.5); }
+  else if (key === 'manager') { // blouse showing between the blazer lapels
+    g.beginPath(); g.moveTo(r * 0.44, -r * 0.3); g.lineTo(r * 0.06, 0); g.lineTo(r * 0.44, r * 0.3); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = 1; g.stroke();
+  } else if (key === 'builder') { // hi-vis vest over the shirt, with reflective stripes
+    g.fillStyle = a.vest; g.beginPath(); g.ellipse(-r * 0.1, 0, r * 0.5, r * 0.84, 0, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 1; g.stroke();
+    g.fillStyle = a.trim; g.fillRect(-r * 0.3, -r * 0.8, r * 0.1, r * 1.6); g.fillRect(r * 0.04, -r * 0.72, r * 0.1, r * 1.44);
+  } else if (key === 'medic') { // reflective band + a star-of-life patch on the shoulder
+    g.lineWidth = r * 0.12; g.beginPath(); g.ellipse(-r * 0.1, 0, r * 0.4, r * 0.78, 0, Math.PI * 0.62, Math.PI * 1.38); g.stroke();
+    g.beginPath(); g.ellipse(-r * 0.1, 0, r * 0.4, r * 0.78, 0, -Math.PI * 0.38, Math.PI * 0.38); g.stroke();
+    g.fillStyle = '#ffffff'; g.beginPath(); g.arc(-r * 0.05, -r * 0.62, r * 0.17, 0, 7); g.fill();
+    g.fillStyle = '#2f6fd6'; g.fillRect(-r * 0.05 - r * 0.04, -r * 0.62 - r * 0.12, r * 0.08, r * 0.24); g.fillRect(-r * 0.05 - r * 0.12, -r * 0.62 - r * 0.04, r * 0.24, r * 0.08);
+  }
+  if (a.longHair) { // long hair framing the face and falling over the shoulders and upper back
+    g.fillStyle = a.hair; g.beginPath();
+    g.moveTo(hx + r * 0.08, -r * 0.46);
+    g.quadraticCurveTo(hx - r * 0.12, -r * 0.6, -r * 0.48, -r * 0.5);
+    g.quadraticCurveTo(-r * 0.86, -r * 0.42, -r * 0.92, -r * 0.16);
+    g.quadraticCurveTo(-r * 0.98, 0, -r * 0.92, r * 0.16);
+    g.quadraticCurveTo(-r * 0.86, r * 0.42, -r * 0.48, r * 0.5);
+    g.quadraticCurveTo(hx - r * 0.12, r * 0.6, hx + r * 0.08, r * 0.46);
+    g.closePath(); g.fill(); g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 1.2; g.stroke();
+    g.strokeStyle = 'rgba(255,220,170,.22)'; g.lineWidth = 1; // strands
+    for (const y of [-0.36, -0.12, 0.12, 0.36]) { g.beginPath(); g.moveTo(hx - r * 0.3, y * r * 0.9); g.quadraticCurveTo(-r * 0.55, y * r * 1.2, -r * 0.86, y * r * 1.05); g.stroke(); }
+  }
+  if (a.ponytail) { // ponytail out the back of the hard hat, swinging a little to one side, with a hair tie
+    g.fillStyle = a.hair; g.beginPath(); g.moveTo(hx - r * 0.3, -r * 0.2);
+    g.bezierCurveTo(-r * 0.6, -r * 0.34, -r * 0.92, -r * 0.1, -r * 1.08, r * 0.16);
+    g.bezierCurveTo(-r * 0.86, r * 0.12, -r * 0.6, r * 0.24, hx - r * 0.3, r * 0.2); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 1.2; g.stroke();
+    g.strokeStyle = 'rgba(255,220,170,.3)'; g.lineWidth = 1; g.beginPath(); g.moveTo(hx - r * 0.55, -r * 0.04); g.quadraticCurveTo(-r * 0.7, -r * 0.04, -r * 0.95, r * 0.1); g.stroke();
+    g.fillStyle = '#ff5a8a'; g.beginPath(); g.ellipse(hx - r * 0.56, 0, r * 0.07, r * 0.17, 0, 0, 7); g.fill();
+  }
+  if (a.braids) { // two braids down the back, beaded ends
+    for (const side of [-1, 1]) {
+      for (let k = 0; k < 5; k++) {
+        const t = k / 4, x = hx - r * 0.3 - t * r * 0.62, y = side * (r * 0.26 + t * r * 0.08);
+        g.fillStyle = a.hair; g.beginPath(); g.ellipse(x, y, r * 0.12, r * (0.12 - t * 0.025), 0, 0, 7); g.fill();
+        g.strokeStyle = 'rgba(255,255,255,.14)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x + r * 0.06, y - r * 0.07); g.lineTo(x - r * 0.04, y + r * 0.05); g.stroke();
+      }
+      g.fillStyle = a.braids; g.beginPath(); g.arc(hx - r * 1.0, side * r * 0.35, r * 0.075, 0, 7); g.fill();
+    }
+  }
   if (gun) gun();
   g.fillStyle = a.helmet ? '#cfd6df' : skin; // hands
   for (const side of [-1, 1]) { g.beginPath(); g.arc(r * 0.72, side * r * 0.22, r * 0.19, 0, 7); g.fill(); }
@@ -2999,6 +3045,26 @@ function drawAvatar(g, r, key, tone, gun) { // top-down person facing +x; gun() 
     return;
   }
   g.fillStyle = skin; g.beginPath(); g.arc(hx, 0, r * 0.46, 0, 7); g.fill(); g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = 1.5; g.stroke();
+  if (a.hardhat) { // hard hat: brim all round, dome, centre ridge, a little orange sticker
+    g.fillStyle = '#d9dde3'; g.beginPath(); g.ellipse(hx + r * 0.04, 0, r * 0.62, r * 0.56, 0, 0, 7); g.fill(); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1.2; g.stroke();
+    g.fillStyle = a.hardhat; g.beginPath(); g.arc(hx, 0, r * 0.45, 0, 7); g.fill(); g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = 1; g.stroke();
+    g.fillStyle = '#c9ced6'; g.fillRect(hx - r * 0.42, -r * 0.07, r * 0.84, r * 0.14);
+    g.fillStyle = '#ff8a1c'; g.beginPath(); g.arc(hx - r * 0.12, -r * 0.24, r * 0.08, 0, 7); g.fill();
+    return;
+  }
+  if (a.longHair || a.braids) { // hair over the crown and back, with a side parting
+    g.fillStyle = a.hair; g.beginPath(); g.arc(hx, 0, r * 0.49, Math.PI * 0.48, Math.PI * 1.52); g.quadraticCurveTo(hx + r * 0.1, 0, hx + r * 0.03, r * 0.49); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.stroke();
+    if (a.longHair) { // strands down both sides of the face
+      for (const side of [-1, 1]) { g.beginPath(); g.arc(hx, 0, r * 0.49, side * Math.PI * 0.18, side * Math.PI * 0.42, side < 0); g.arc(hx, 0, r * 0.4, side * Math.PI * 0.42, side * Math.PI * 0.22, side > 0); g.closePath(); g.fill(); }
+    }
+    g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = 1;
+    if (a.braids) for (const y of [-0.24, 0, 0.24]) { g.beginPath(); g.moveTo(hx + r * 0.04, y * r); g.quadraticCurveTo(hx - r * 0.2, y * r * 1.1, hx - r * 0.42, y * r * 1.25); g.stroke(); } // cornrows into the braids
+    else { g.beginPath(); g.moveTo(hx - r * 0.44, -r * 0.08); g.lineTo(hx + r * 0.02, -r * 0.12); g.stroke(); } // side parting
+    if (a.earrings) { g.fillStyle = a.earrings; for (const side of [-1, 1]) { g.beginPath(); g.arc(hx + r * 0.02, side * r * 0.5, r * 0.07, 0, 7); g.fill(); } }
+    g.fillStyle = '#1d2129'; g.beginPath(); g.arc(hx + r * 0.32, -r * 0.16, r * 0.06, 0, 7); g.arc(hx + r * 0.32, r * 0.16, r * 0.06, 0, 7); g.fill();
+    return;
+  }
   if (a.hood) { g.fillStyle = a.shirt; g.beginPath(); g.arc(hx, 0, r * 0.5, Math.PI * 0.4, Math.PI * 1.6); g.fill(); }
   else if (a.hat) {
     g.fillStyle = a.hat; g.beginPath(); g.arc(hx - r * 0.04, 0, r * 0.47, 0, 7); g.fill();
